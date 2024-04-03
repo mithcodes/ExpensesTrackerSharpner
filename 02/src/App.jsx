@@ -1,55 +1,68 @@
-import './App.css';
-import { useEffect, useState } from 'react';
-import { getAuth, onAuthStateChanged ,signOut} from 'firebase/auth';
-import { app } from "./Firebase";
-import Login from './pages/Login';
-import Signup from "./pages/signup";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes
-} from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { app } from './Firebase';
+import styles from "./Signup.module.css"
 
-const auth = getAuth(app);
+const Login = ({auth}) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-function App() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, user => {
-      if (user) {
-        console.log('hello ,user');
-        setUser(user);
-      } else {
-        console.log("you are logged ");
-        setUser(null);
-      }
-    });
-
-    // Cleanup the listener
-  
-  }, []);
-
-  if(user!==null){
-    return(
-      <div className="app">
-<h4>welcome to expenses tracker </h4>
-  <button onClick={()=>signOut(auth)}>logout</button>
-      </div>
-    )
-  }
+  const SigninUser = () => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((value) => {
+        console.log('signin successful');
+      })
+      .catch((err) => {
+        console.log('error:', err.message);
+      });
+  };
 
   return (
-    <Router>
-      <Routes>
-    
-            <Route path="/" element={<Signup auth={auth} />} />
-            <Route path="/signin" element={<Login auth={auth} />} />
-        
-        
-      </Routes>
-    </Router>
+    <div className={styles.signupContainer} style={{ backgroundColor: '#8ecae6' }}>
+      <div className={styles.signup} style={{ backgroundColor: '#219ebc' }}>
+        <div className="row m-3">
+          <h3>Login</h3>
+        </div>
+        <div className="row m-3">
+          <div className="col-md-4">
+            <label>Email:</label>
+          </div>
+          <div className="col-md-8">
+            <input 
+              type="email" required
+              placeholder="Enter your email"  
+              onChange={(e) => setEmail(e.target.value)}  
+              value={email}
+            />
+          </div>
+        </div>
+        <div className="row m-3">
+          <div className="col-md-4">
+            <label>Password:</label>
+          </div>
+          <div className="col-md-8">
+            <input 
+              type="password" 
+              placeholder="Enter your password"  required
+              onChange={(e) => setPassword(e.target.value)} 
+              value={password}
+            />
+          </div>
+        </div>
+        <div className="row m-3">
+          <div className="col-md-2"></div>
+          <div className="col-md-10">
+            <button type="button" className="btn btn-success" onClick={SigninUser}>Login</button>
+          </div>
+        </div>
+        <hr style={{ borderTop: "2px solid red", width: "80%" }} />
+        <div className="row m-3">
+          <p>Do not have an account? <Link to="/">Signup</Link></p>
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
-export default App;
+export default Login;
